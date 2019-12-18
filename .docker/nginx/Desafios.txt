@@ -1,0 +1,210 @@
+Publicando imagem Laravel
+
+[ATUALIZAÇÃO]
+
+Agora que você já aprendeu muito sobre docker, gostaríamos que dividisse esse exercício em duas etapas:
+
+1) Configurar um ambiente Laravel utilizando o docker-compose com:
+
+    Nginx
+    PHP-FPM
+    Redis
+    MySQL
+
+Lembrando que o volume do código fonte deve ser compartilhado com a App.
+
+Após realizarmos a clonagem do repositório e executarmos: docker-compose up -d, poderemos ver a aplicação Laravel rodando com o erro de autoload na porta: 8000, uma vez que o docker-compose não executou o composer install do PHP, logo, não se preocupe com tal detalhe nesse momento. 
+
+2) Após ter tido sucesso na etapa anterior, faça a configuração do framework Laravel seguindo as etapas (dentro do container):
+
+    execute composer install
+    crie o arquivo .env baseado no .env.example 
+    execute: php artisan key:generate 
+    execute: php artisan migrate
+
+* Nesse momento, quando você acessar a aplicação no browser, finalmente, você deverá ver a página inicial do Laravel funcionando.
+
+Baseado nessas últimas ações, gere o build da imagem desse container e faça a publicação em sua conta no Hub do Docker.
+
+Lembre-se: Ao gerar o build da imagem, TODO o conteúdo incluindo arquivos como vendor, .env, etc deverão ser incluídos.
+
+Adicione o endereço da imagem no seu dockerhub no README.md e faça o commit para um repositório público do Github.
+
+Arquivos e códigos úteis para auxiliar no exercício incluindo nginx.conf e linha de comando para baixar o composer. Clique aqui -> https://gist.github.com/wesleywillians/62c3846f789c02729b856606ae0b7feb
+
+
+
+
+
+Desafio Docker
+
+Parabéns! Se você chegou até aqui é porque você está de fato compreendendo os principais conceitos do Docker!
+
+Nesse desafio você terá duas tarefas extremamente importantes:
+
+1) Baseado em nosso projeto exemplo Laravel, utilize o sistema de templates do Dockerize para que ele ajude no processo de deixar o arquivo nginx.conf mais flexível, ou seja, tanto o host e porta da chamada do php-fpm possam ser definidos como variáveis de ambiente no docker-compose.yaml. 
+
+O resultado final é que quando rodemos docker-compose up -d, tanto o host e a porta do nginx possam ser definidas através de variáveis de ambiente no docker-compose.yaml. 
+
+Dica: Esse processo é bem similar ao que vimos no curso com o arquivo .env do Laravel. Colocamos as varáveis de template no arquivo .env para o dockerize e ele fez o processo de substituição. Nesse caso, faça o mesmo processo para o arquivo nginx.conf colocando as variáveis para o host e porta do php-fpm.
+
+2) Esse desafio é muito empolgante principalmente se você nunca trabalhou com a linguagem Go!
+Você terá que publicar uma imagem no docker hub. Quando executarmos:
+
+docker run <seu-user>/codeeducation 
+
+Temos que ter o seguinte resultado: Code.education Rocks!
+
+Se você perceber, essa imagem apenas realiza um print da mensagem como resultado final, logo, vale a pena dar uma conferida no próprio site da Go Lang para aprender como fazer um "olá mundo".
+
+Lembrando que a Go Lang possui imagens oficiais prontas, vale a pena consultar o Docker Hub.
+
+3) A imagem de nosso projeto Go precisa ter menos de 2MB =)
+
+Dica: No vídeo de introdução sobre o Docker quando falamos sobre o sistema de arquivos em camadas, apresento uma imagem "raiz", talvez seja uma boa utilizá-la.
+
+Divirta-se
+
+
+
+
+
+Processo de CI
+
+Nessa fase, você deverá repetir o processo ensinado no módulo.
+
+1) Você deverá pegar sua aplicação Laravel das fases anteriores e adicioná-la em um pipeline de integração contínua utilizando o Google Cloud Build, para isso terá que:
+
+    Gerar a imagem do docker-compose e fazer o push no seu Container Registry do GCP. 
+    Criar uma trigger para ser disparada todas as vezes que um commit entrar no repositório do Github.
+    Os steps do Google Cloud Build deverão ser:
+        Executar o docker-compose
+        Executar o composer
+        Copiar o arquivo .env.example para .env
+        Rodar um artisan key:generate
+        Executar as migrações
+        Executar os testes utilizando o PHPUnit
+
+2) Você deverá instalar a App do Google Cloud Build disponível no Market Place do Github. Crie um branch develop em seu repositório. Todas as vezes que uma pull request for criada, imediatamente o Google Cloud Build deverá iniciar o processo de CI.
+
+
+
+
+Desafio de CI
+
+Se você chegou nessa fase é porque entendeu na prática como funciona um processo de integração contínua! Parabéns =)
+
+Nesse desafio, você será tirado de sua zona de conforto caso você ainda não trabalhe com a linguagem de programação Go.
+
+1) Você deverá criar uma simples aplicação que possua uma função chamada soma que receberá dois parâmetros e retornará a adição desses dois valores.
+
+Essa função deverá ser chamada na função main do programa. Quando executada, deverá exibir da na tela o resultado da soma de 5 + 5.
+
+2) Crie um teste unitário para essa função.
+
+3) Ative um processo de CI que execute os seguintes passos:
+
+    Executar o teste unitário
+    Push da imagem gerada no processo de CI no Container Registry do GCP
+    Ative a App do Cloud Build no Github para que cada pull request execute automaticamente o processo de CI
+
+Dicas: 
+
+    Para fazer o push da imagem, reveja o vídeo onde fazemos a instalação do docker-compose.
+    Para executar os comandos Go no Cloud Build, lembre-se que o GCP fornece diversas imagens prontas para isso em seu registro público "cloud-builders"
+    No cloudbuild.yaml provavelmente você deverá setar uma variável de ambiente informando o GOPATH em cada etapa. Recomendo que verifique a documentação do Cloud Build na sessão da linguagem Go.
+    Crie uma pasta src/[nome-de-seu-projeto-ou-pacote] e coloquei seus arquivos .go nessa pasta.
+
+Bons estudos!
+
+"Amadores sempre estao satisfeitos, mas os profissionais estão sempre preocupados, porque eles sabem que a vida deles dependem do que fazem." Marcel Marceau
+
+
+
+
+Utilizando K8S
+
+Pronto para mais uma fase? Vamos lá!
+
+Utilizando os conhecimentos adquiridos até o momento, crie os arquivos declarativos do Kubernetes para que os seviços abaixam possam ser executados.
+
+1) Servidor Web - Nginx
+
+    Utilize a imagem base do Nginx Alpine
+    Disponibilize 3 réplicas
+    Quando alguém acessar o IP externo do LoadBalancer do serviço criado, ou em caso de utilização do Minikube usando "minikube service nome-do-servico", deve ser exibido no browser: Code.education Rocks.
+
+2) Configuração do MySQL
+
+    Faça o processo de configuração de um servidor de banco de dados MySQL
+    Utilize secret em conjunto com as variáveis de ambiente
+    Utilize disco persistente para gravar as informações dos dados
+
+
+3) Desafio Go!
+
+    Crie um aplicativo Go que disponibilize um servidor web na porta 8000 que quando acessado seja exibido em HTML (em negrito) Code.education Rocks!
+    A exibição dessa string deve ser baseada no retorno de uma função chamada "greeting". Essa função receberá a string como parâmetro e a retornará entre as tags <b></b>.
+    Como ótimo desenvolvedor(a), você deverá criar o teste dessa função.
+    Ative o processo de CI no Google Cloud Build para garantir que a cada PR criada faça com que os testes sejam executados.
+    Gere a imagem desse aplicativo de forma otimizada e publique-a no Docker Hub
+    Utilizando o Kubernetes, disponibilize o serviço do tipo Load Balancer que quando acessado pelo browser acesse a aplicação criada em Go.
+
+Entrega via Github:
+
+Cria uma pasta para cada etapa dessa fase contendo os arquivos .yml do kubernetes
+No caso do Desafio Go, o fonte da aplicação, Dockerfile, etc também devem ficar disponíveis.
+Crie um arquivo README.md e nele informe o endereço da imagem gerada no Docker Hub.
+
+Lembre-se, estamos aqui para te tirar da sua zona de conforto, porém nunca se esqueça que nosso suporte está de braços abertos para lhe ajudar.
+
+Boa sorte e conte sempre conosco! 
+
+
+
+
+
+Kubernetes e hpa
+
+1) Nessa fase, você deverá implementar exatamente o mesmo algorítimo que foi implementado em PHP (no php-apache-hpa / looping somando a raiz quadrada), porém na linguagem Go Lang. Não esqueça de seguir os passos abaixo:
+
+    Nome do deployment, service e nome da imagem deverá se chamar: go-hpa
+    Desenvolva os testes
+    Implemente o processo de CI
+    Faça o push da imagem no Docker Hub (seu-user/go-hpa)
+    Faça o deploy da imagem no K8S (criando os arquivos de deployment e services)
+        Cada réplica deverá consumir no mínimo 50m e no máximo 100m.
+
+2) Implemente o "hpa" para que esse deployment tenha as seguintes características:
+
+    O processo de escala inicia quando a CPU passar de 15%
+    Quantidade mínima de pods: 1
+    Quantidade máxima de pods: 6
+
+3) Crie um POD e faça requisições através de um looping infinito e verifique se o autoscaler está funcionando corretamente.
+
+Formato de Entrega:
+
+Crie um repositório no github contendo tanto o projeto em Go (com pelo menos uma PR verificada através do processo de CI), bem como os arquivos yamls necessários para executar todo o processo.
+
+Conte conosco para o que precisar, sempre!
+
+
+
+
+
+
+
+Deploy Contínuo
+
+Parabéns! Você chegou a nossa fase final onde você consolidará seus conhecimentos participando de todo ciclo de deploy de uma aplicação.
+
+Nessa fase, o objetivo principal será fazer o deploy automático da aplicação já desenvolvida em Go Lang nas fases passadas.
+
+As regras do processo são:
+- Quando qualquer push ou uma PR for relizada no Github em um branch diferente do Master, o processo de CI tem que ser executado.
+- Quando um merge ou um push entrarem no branch Master, o processo de CI/CD deve ser chamado, fazendo assim o deploy de forma automática no Kubernetes.
+
+Faça o upload de todo código em um repositório, incluindo os do Cloudbuild, para que possamos fazer a avaliação.
+
+Boa sorte e conte sempre conosco!
